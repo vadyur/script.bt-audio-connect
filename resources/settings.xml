@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+    <category label="Main">
+        <setting label="BT-profile number" type="number" id="bt_profile" default="3" />
+        <setting label="MAC Addres" type="text" id="mac" default=""/>
+	</category>
+</settings>
