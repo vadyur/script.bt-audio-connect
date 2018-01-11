@@ -11,5 +11,6 @@
     <extension point="xbmc.addon.metadata">
         <summary lang="en">Switch bt-audio</summary>
         <description lang="en">Switch bt-audio</description>
+		<platform>linux</platform>
     </extension>
 </addon>

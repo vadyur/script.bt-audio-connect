@@ -1,9 +1,12 @@
-import xbmc, xbmcaddon
 import os
-from subprocess import call
+from subprocess import call, check_output
 
-audio_profiles = xbmcaddon.Addon(id="script.audio.profiles")
-addon = xbmcaddon.Addon()
+try:
+	import xbmc, xbmcaddon
+	audio_profiles = xbmcaddon.Addon(id="script.audio.profiles")
+	addon = xbmcaddon.Addon()
+except:
+	pass
 
 def getSetting(id, default=''):
 	result = addon.getSetting(id)
@@ -20,25 +23,45 @@ def choice():
 	current.close()
 	return result
 
+def get_list():
+	out = check_output('echo -e "devices\nexit" | bluetoothctl', shell=True)
+	ll = out.split('\n')
 
-old_c = choice()
+	return [ l.replace('Device ', '') for l in ll if l.startswith('Device ') ] 
 
-# switch sound profiles
-xbmc.executebuiltin("RunScript(script.audio.profiles,0)")
-xbmc.log('detect audio profiles')
+def switch(mac=None):
 
-while True:
-	c = choice()
-	if c != old_c:
-		break
+	old_c = choice()
 
-	xbmc.sleep(100)
+	# switch sound profiles
+	xbmc.executebuiltin("RunScript(script.audio.profiles,0)")
+	xbmc.log('detect audio profiles')
 
-xbmc.log('audio profile: ' + str(c))
+	while True:
+		c = choice()
+		if c != old_c:
+			break
 
-mac = getSetting('mac')
-if mac:
-	if str(c) == getSetting('bt_profile'):
-		 call('echo -e "connect %s\nexit" | bluetoothctl' % mac, shell=True)
-else:
-	addon.openSettings()
+		xbmc.sleep(100)
+
+	xbmc.log('audio profile: ' + str(c))
+
+	if mac:
+		if str(c) == getSetting('bt_profile'):
+			 call('echo -e "connect %s\nexit" | bluetoothctl' % mac, shell=True)
+	else:
+		addon.openSettings()
+
+def get_mac(s):
+	return s[:17]
+
+def menu():
+	ll = get_list()
+	import xbmcgui
+	dlg = xbmcgui.Dialog()
+	r = dlg.select('Choose a device', ll)
+	if r >= 0:
+		switch(get_mac(ll[r]))
+
+if __name__ == "__main__":
+	menu()
