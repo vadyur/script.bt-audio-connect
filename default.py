@@ -11,7 +11,10 @@ except:
 def current_profile():
 	# read 'current profile' from script.audio.profiles
 	path = audio_profiles.getAddonInfo('profile')
-	with open(os.path.join(path, 'profile'), 'r') as current:
+	path = os.path.join(path, 'profile')
+	path = xbmc.translatePath(path)
+	
+	with open(path, 'r') as current:
 		return current.read()
 
 def get_list():
@@ -55,13 +58,17 @@ def menu(ll):
 		switch(get_mac(ll[r]))
 
 if __name__ == "__main__":
-	ll = get_list()
-	if ll:
-		menu(ll)
+	
+	if str(current_profile()) == addon.getSetting('bt_profile'):
+		xbmc.executebuiltin("RunScript(script.audio.profiles,0)", wait=True)
 	else:
-		mac = get_mac()
-		if mac:
-			switch(mac)
+		ll = get_list()
+		if ll:
+			menu(ll)
 		else:
-			addon.openSettings()
+			mac = get_mac()
+			if mac:
+				switch(mac)
+			else:
+				addon.openSettings()
 
